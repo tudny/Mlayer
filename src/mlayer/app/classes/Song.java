@@ -84,4 +84,8 @@ public class Song{
 
         return esteticTitle;
     }
+
+    public Mp3File getMp3File(){
+        return mp3File;
+    }
 }

@@ -43,6 +43,7 @@ public class Main extends Application {
 
         System.out.println(song.getEsteticTitle());
 
+        System.out.println(song.getMp3File().getLengthInSeconds());
 
     }
 
