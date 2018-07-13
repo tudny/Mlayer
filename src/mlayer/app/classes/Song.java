@@ -58,8 +58,8 @@ public class Song{
         return null;
     }
 
-    public String getEsteticTitle(){
-        String esteticTitle;
+    public String getEstheticTitle(){
+        String estheticTitle;
 
         String title = unknown;
         String artist = unknown;
@@ -69,7 +69,7 @@ public class Song{
         if(id3v2 != null && id3v2.getTitle() != null){
             title = id3v2.getTitle();
         }
-        esteticTitle = title;
+        estheticTitle = title;
 
         if(id3v1 != null && id3v1.getArtist() != null){
             artist = id3v1.getArtist();
@@ -79,13 +79,24 @@ public class Song{
         }
 
         if(!artist.equals(unknown)){
-            esteticTitle = esteticTitle + " - " + artist;
+            estheticTitle = estheticTitle + " - " + artist;
         }
 
-        return esteticTitle;
+        return estheticTitle;
     }
 
     public Mp3File getMp3File(){
         return mp3File;
+    }
+
+    public String getEstheticLength(){
+        String estheticLength;
+
+        long sec = mp3File.getLengthInSeconds();
+        long min = sec / 60; sec %= 60;
+
+        estheticLength = "" + Long.toString(min) + ":" + Long.toString(sec) + "";
+
+        return estheticLength;
     }
 }
