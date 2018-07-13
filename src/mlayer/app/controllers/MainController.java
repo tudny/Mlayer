@@ -170,7 +170,7 @@ public class MainController {
 
     private void loadFilesFromIniFile(){
         try {
-            BufferedReader br = new BufferedReader(new FileReader("amlayer-conf.ini"));
+            BufferedReader br = new BufferedReader(new FileReader("mlayer-conf.ini"));
             String read;
             while((read = br.readLine()) != null){
                 if(read.charAt(0) == '#') continue;
