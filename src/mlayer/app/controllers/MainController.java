@@ -18,10 +18,7 @@ import javafx.util.Duration;
 import mlayer.app.Main;
 import mlayer.app.classes.Song;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.util.Optional;
 
 
@@ -152,20 +149,37 @@ public class MainController {
         player.currentTimeProperty().addListener(updateOfSongBar);
         player.play();*/
         //createIniFile();
-        setNewSongToPlay(songOList.get(0));
+        //setNewSongToPlay(songOList.get(0));
+        loadFilesFromIniFile();
     }
 
     public void createIniFile(){
         try {
             PrintWriter writer = new PrintWriter("mlayer-conf.ini", "UTF-8");
-            writer.println("<Mlayer configuration file>");
-            for(int i = 0; i < songOList.size(); i++){
-                String path = songOList.get(i).getMedia().getSource();
+            writer.println("#Mlayer configuration file");
+            for (Song aSongOList : songOList) {
+                String path = aSongOList.getFile().getPath();
                 writer.println(path);
             }
-            writer.println("</Mlayer configuration file>");
+            writer.println("#end");
             writer.close();
         } catch (FileNotFoundException | UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void loadFilesFromIniFile(){
+        try {
+            BufferedReader br = new BufferedReader(new FileReader("mlayer-conf.ini"));
+            String read;
+            while((read = br.readLine()) != null){
+                if(read.charAt(0) == '#') continue;
+                File file = new File(read);
+                Song addedSong = new Song(file);
+                songOList.add(addedSong);
+                songsList.getItems().add(addedSong);
+            }
+        } catch (Exception e){
             e.printStackTrace();
         }
     }
@@ -217,12 +231,8 @@ public class MainController {
 
         Song addedSong = new Song(file);
 
-        System.out.println(addedSong.getEstheticTitle());
-
         songOList.add(addedSong);
-        if(addedSong != null) {
-            songsList.getItems().add(addedSong);
-        }
+        songsList.getItems().add(addedSong);
     }
 
     private void setNewSongToPlay(Song newSong){

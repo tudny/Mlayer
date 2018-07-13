@@ -91,6 +91,10 @@ public class Song{
         return mp3File;
     }
 
+    public File getFile(){
+        return file;
+    }
+
     public String getEstheticLength(){
         String estheticLength;
 
