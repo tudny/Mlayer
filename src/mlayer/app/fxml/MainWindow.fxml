@@ -1,17 +1,123 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.Button?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
 <?import javafx.scene.image.ImageView?>
-<?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.text.Font?>
+<?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Text?>
-<AnchorPane xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="mlayer.app.controllers.MainController">
-    <ImageView fx:id="imageView" pickOnBounds="true" preserveRatio="true"/>
-    <Text fx:id="lengthText" layoutY="27.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Taki sobie text">
-        <font>
-          <Font size="25.0"/>
-        </font>
-    </Text>
-    <Button fx:id="playButton" layoutX="202.0" layoutY="76.0" mnemonicParsing="false" text="Button"/>
+<AnchorPane xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="mlayer.app.controllers.MainController">
+   <children>
+      <BorderPane>
+         <top>
+            <MenuBar BorderPane.alignment="CENTER">
+              <menus>
+                <Menu mnemonicParsing="false" text="File">
+                  <items>
+                        <MenuItem fx:id="loadMenu" mnemonicParsing="false" onAction="#loadMenuOnAction" text="Load" />
+                    <MenuItem fx:id="closeMenu" mnemonicParsing="false" onAction="#closeMenuAction" text="Close" />
+                  </items>
+                </Menu>
+                <Menu mnemonicParsing="false" text="Edit">
+                  <items>
+                    <MenuItem fx:id="deleteMenu" mnemonicParsing="false" onAction="#deleteMenuAction" text="Delete" />
+                  </items>
+                </Menu>
+                <Menu mnemonicParsing="false" text="Help">
+                  <items>
+                    <MenuItem fx:id="aboutMenu" mnemonicParsing="false" onAction="#aboutMenuOnAction" text="About" />
+                  </items>
+                </Menu>
+              </menus>
+            </MenuBar>
+         </top>
+         <center>
+            <VBox prefHeight="200.0" prefWidth="100.0" BorderPane.alignment="CENTER">
+               <children>
+                  <Text fx:id="titleText" strokeType="OUTSIDE" strokeWidth="0.0" text="Title" wrappingWidth="240.0">
+                     <VBox.margin>
+                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                     </VBox.margin>
+                  </Text>
+                  <Separator prefWidth="200.0" />
+                  <ImageView fx:id="coverArtImageView" fitHeight="250.0" fitWidth="250.0" pickOnBounds="true" preserveRatio="true" />
+                  <Separator prefWidth="200.0" />
+                  <ProgressBar fx:id="timeBar" prefHeight="18.0" prefWidth="250.0" progress="0.0">
+                     <VBox.margin>
+                        <Insets />
+                     </VBox.margin>
+                     <padding>
+                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                     </padding>
+                  </ProgressBar>
+                  <Separator prefWidth="250.0" />
+               </children>
+            </VBox>
+         </center>
+         <bottom>
+            <HBox alignment="CENTER" prefHeight="45.0" BorderPane.alignment="CENTER">
+               <children>
+                  <Button fx:id="muteButton" mnemonicParsing="false" onAction="#muteButtonOnAction" prefHeight="35.0" prefWidth="35.0" text="M" textAlignment="CENTER">
+                     <padding>
+                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                     </padding>
+                     <HBox.margin>
+                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                     </HBox.margin>
+                  </Button>
+                  <Separator orientation="VERTICAL" prefHeight="200.0" />
+                  <Button fx:id="prevButton" alignment="CENTER" mnemonicParsing="false" onAction="#prevButtonOnAction" prefHeight="35.0" prefWidth="35.0" text="Prev" textAlignment="CENTER">
+                     <padding>
+                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                     </padding>
+                     <HBox.margin>
+                        <Insets bottom="5.0" left="15.0" right="15.0" top="5.0" />
+                     </HBox.margin>
+                  </Button>
+                  <Button fx:id="skipPrevButton" mnemonicParsing="false" onAction="#skipPrevButtonOnAction" prefHeight="35.0" prefWidth="35.0" text="S-5">
+                     <HBox.margin>
+                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                     </HBox.margin>
+                     <padding>
+                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                     </padding>
+                  </Button>
+                  <Button fx:id="playButton" alignment="CENTER" mnemonicParsing="false" onAction="#playButtonOnAction" prefHeight="35.0" prefWidth="35.0" text="Play" textAlignment="CENTER">
+                     <padding>
+                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                     </padding>
+                     <HBox.margin>
+                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                     </HBox.margin>
+                  </Button>
+                  <Button fx:id="skipNextButton" mnemonicParsing="false" onAction="#skipNextButtonOnAction" prefHeight="35.0" prefWidth="35.0" text="S+5">
+                     <HBox.margin>
+                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                     </HBox.margin>
+                     <padding>
+                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                     </padding>
+                  </Button>
+                  <Button fx:id="nextButton" alignment="CENTER" mnemonicParsing="false" onAction="#nextButtonOnAction" prefHeight="35.0" prefWidth="35.0" text="Next" textAlignment="CENTER">
+                     <padding>
+                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                     </padding>
+                     <HBox.margin>
+                        <Insets bottom="5.0" left="15.0" right="15.0" top="5.0" />
+                     </HBox.margin>
+                  </Button>
+               </children>
+            </HBox>
+         </bottom>
+         <left>
+            <TableView fx:id="songsList" prefHeight="310.0" BorderPane.alignment="CENTER">
+               <columns>
+                  <TableColumn fx:id="nrColumn" prefWidth="28.0" text="Nr" />
+                  <TableColumn fx:id="nameColumn" prefWidth="150.0" text="Name" />
+                  <TableColumn fx:id="artistColumn" prefWidth="113.0" text="Artist" />
+                  <TableColumn fx:id="albumColumn" prefWidth="148.0" text="Album" />
+               </columns>
+            </TableView>
+         </left>
+      </BorderPane>
+   </children>
 </AnchorPane>

@@ -3,6 +3,8 @@ package mlayer.app.classes;
 import com.mpatric.mp3agic.ID3v1;
 import com.mpatric.mp3agic.ID3v2;
 import com.mpatric.mp3agic.Mp3File;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.image.Image;
 import javafx.scene.media.Media;
@@ -98,5 +100,45 @@ public class Song{
         estheticLength = "" + Long.toString(min) + ":" + Long.toString(sec) + "";
 
         return estheticLength;
+    }
+
+    public StringProperty getNrProperty(){
+        if(id3v2 == null){
+            if(id3v1 == null){
+                return new SimpleStringProperty(unknown);
+            }
+            return new SimpleStringProperty(id3v1.getTrack());
+        }
+        return new SimpleStringProperty(id3v2.getTrack());
+    }
+
+    public StringProperty getTitleProperty(){
+        if(id3v2 == null){
+            if(id3v1 == null){
+                return new SimpleStringProperty(unknown);
+            }
+            return new SimpleStringProperty(id3v1.getTitle());
+        }
+        return new SimpleStringProperty(id3v2.getTitle());
+    }
+
+    public StringProperty getArtistProperty(){
+        if(id3v2 == null){
+            if(id3v1 == null){
+                return new SimpleStringProperty(unknown);
+            }
+            return new SimpleStringProperty(id3v1.getArtist());
+        }
+        return new SimpleStringProperty(id3v2.getArtist());
+    }
+
+    public StringProperty getAlbumProperty(){
+        if(id3v2 == null){
+            if(id3v1 == null){
+                return new SimpleStringProperty(unknown);
+            }
+            return new SimpleStringProperty(id3v1.getAlbum());
+        }
+        return new SimpleStringProperty(id3v2.getAlbum());
     }
 }
