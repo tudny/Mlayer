@@ -124,7 +124,7 @@ public class MainController {
         System.out.println("...setting done!");
     }
 
-    boolean closeWindow(){
+    private boolean closeWindow(){
         Alert closingAlert = new Alert(Alert.AlertType.CONFIRMATION);
         //closingAlert.initStyle(StageStyle.UTILITY);
         closingAlert.setTitle("Closing program");
@@ -144,7 +144,7 @@ public class MainController {
         }
     }
 
-    public void test(){
+    private void test(){
         /*player = new MediaPlayer(songOList.get(0).getMedia());
         player.currentTimeProperty().addListener(updateOfSongBar);
         player.play();*/
@@ -168,9 +168,9 @@ public class MainController {
         }
     }
 
-    public void loadFilesFromIniFile(){
+    private void loadFilesFromIniFile(){
         try {
-            BufferedReader br = new BufferedReader(new FileReader("mlayer-conf.ini"));
+            BufferedReader br = new BufferedReader(new FileReader("amlayer-conf.ini"));
             String read;
             while((read = br.readLine()) != null){
                 if(read.charAt(0) == '#') continue;
@@ -179,7 +179,7 @@ public class MainController {
                 songOList.add(addedSong);
                 songsList.getItems().add(addedSong);
             }
-        } catch (Exception e){
+        } catch (IOException e){
             e.printStackTrace();
         }
     }
