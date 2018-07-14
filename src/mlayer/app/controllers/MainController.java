@@ -42,6 +42,7 @@ public class MainController {
     private Integer MAX_TITLE_SIZE = 35;
     private Double SKIP_VAL = 5.0;
     private Integer notASongFile = 0;
+    private Image muteImg, unmuteImg, pauseImg, playImg, nextImg, prevImg, skipForwImg, skipBackImg;
 
     @FXML
     private MenuItem loadMenu;
@@ -130,6 +131,21 @@ public class MainController {
         albumColumn.setCellValueFactory(cellData -> cellData.getValue().getAlbumProperty());
         durationColumn.setCellValueFactory(cellData -> cellData.getValue().getDurationProperty());
 
+        playImg = loadNewPngImageFromImgFolder("play");
+        pauseImg = loadNewPngImageFromImgFolder("pause");
+        nextImg = loadNewPngImageFromImgFolder("next");
+        prevImg = loadNewPngImageFromImgFolder("prev");
+        muteImg = loadNewPngImageFromImgFolder("mute");
+        unmuteImg = loadNewPngImageFromImgFolder("unmute");
+        skipForwImg = loadNewPngImageFromImgFolder("skipForw");
+        skipBackImg = loadNewPngImageFromImgFolder("skipBack");
+
+        playButton.setText(null); playButton.setGraphic(new ImageView(playImg));
+        nextButton.setGraphic(new ImageView(nextImg));
+        prevButton.setGraphic(new ImageView(prevImg));
+        muteButton.setGraphic(new ImageView(unmuteImg));
+        skipNextButton.setGraphic(new ImageView(skipForwImg));
+        skipPrevButton.setGraphic(new ImageView(skipBackImg));
 
         myStage.setOnCloseRequest(event -> {
             if(!closeWindow()){
@@ -158,6 +174,10 @@ public class MainController {
         loadFilesFromIniFile();
 
         System.out.println("...setting done!");
+    }
+
+    private Image loadNewPngImageFromImgFolder(String src){
+        return new Image(Main.class.getResource("img/" + src + ".png").toString());
     }
 
     private boolean closeWindow(){
@@ -259,12 +279,13 @@ public class MainController {
 
     @FXML
     void muteButtonOnAction(ActionEvent event) {
+        if(player == null) return;
         if(player.isMute()){
             player.setMute(false);
-            muteButton.setText("M");
+            muteButton.setGraphic(new ImageView(unmuteImg));
         }else{
             player.setMute(true);
-            muteButton.setText("m");
+            muteButton.setGraphic(new ImageView(muteImg));
         }
     }
 
@@ -286,8 +307,10 @@ public class MainController {
 
         if(player.getStatus().equals(MediaPlayer.Status.PLAYING)){
             player.pause();
+            playButton.setGraphic(new ImageView(pauseImg));
         }else if(player.getStatus().equals(MediaPlayer.Status.PAUSED)){
             player.play();
+            playButton.setGraphic(new ImageView(playImg));
         }
     }
 
@@ -371,10 +394,12 @@ public class MainController {
     }
 
     public void skipPrevButtonOnAction(ActionEvent actionEvent) {
+        if(player == null) return;
         player.seek(player.getCurrentTime().subtract(Duration.seconds(SKIP_VAL)));
     }
 
     public void skipNextButtonOnAction(ActionEvent actionEvent) {
+        if(player == null) return;
         player.seek(player.getCurrentTime().add(Duration.seconds(SKIP_VAL)));
     }
 
