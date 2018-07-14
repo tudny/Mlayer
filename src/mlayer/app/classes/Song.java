@@ -63,7 +63,7 @@ public class Song{
         return null;
     }
 
-    public String getEstheticTitle(){
+    public String getEstheticTitle(int type){
         String estheticTitle;
 
         String title = unknown;
@@ -83,8 +83,12 @@ public class Song{
             artist = id3v2.getArtist();
         }
 
-        if(!artist.equals(unknown)){
+        if(!artist.equals(unknown) && type == 1){
             estheticTitle = estheticTitle + " - " + artist;
+        }
+
+        if(!artist.equals(unknown) && type == 2){
+            estheticTitle = artist + " - " + estheticTitle;
         }
 
         return estheticTitle;
@@ -147,5 +151,12 @@ public class Song{
             return new SimpleStringProperty(id3v1.getAlbum());
         }
         return new SimpleStringProperty(id3v2.getAlbum());
+    }
+
+    public StringProperty getDurationProperty() {
+        Long dur = mp3File.getLengthInSeconds();
+        Long sec = dur % 60; String se = sec.toString(); if(se.length() == 1) se = "0" + se;
+        Long min = dur / 60; String mi = min.toString(); if(mi.length() == 1) mi = "0" + mi;
+        return new SimpleStringProperty(mi + ":" + se);
     }
 }

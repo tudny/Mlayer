@@ -12,6 +12,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.text.Text;
+import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.util.Duration;
@@ -37,11 +38,16 @@ public class MainController {
             timeBar.setProgress(current / fullTime);
         }
     };
+    private Runnable endRunnable = this::playNextSong;
     private Integer MAX_TITLE_SIZE = 35;
     private Double SKIP_VAL = 5.0;
+    private Integer notASongFile = 0;
 
     @FXML
     private MenuItem loadMenu;
+
+    @FXML
+    private MenuItem loadDirectoryMenu;
 
     @FXML
     private MenuItem closeMenu;
@@ -51,6 +57,9 @@ public class MainController {
 
     @FXML
     private MenuItem aboutMenu;
+
+    @FXML
+    private MenuItem clearListMenu;
 
     @FXML
     private Text titleText;
@@ -75,6 +84,9 @@ public class MainController {
 
     @FXML
     private TableColumn<Song, String> albumColumn;
+
+    @FXML
+    private TableColumn<Song, String> durationColumn;
 
     @FXML
     private Button muteButton;
@@ -116,6 +128,8 @@ public class MainController {
         nameColumn.setCellValueFactory(cellData -> cellData.getValue().getTitleProperty());
         artistColumn.setCellValueFactory(cellData -> cellData.getValue().getArtistProperty());
         albumColumn.setCellValueFactory(cellData -> cellData.getValue().getAlbumProperty());
+        durationColumn.setCellValueFactory(cellData -> cellData.getValue().getDurationProperty());
+
 
         myStage.setOnCloseRequest(event -> {
             if(!closeWindow()){
@@ -202,17 +216,22 @@ public class MainController {
             while((read = br.readLine()) != null){
                 if(read.startsWith("#Mlayer config")) continue;
                 if(read.startsWith("#Selected")) continue;
-                if(read.startsWith("#end")) continue;
+                if(read.startsWith("#end")) break;
                 songsList.getSelectionModel().select(Integer.parseInt(br.readLine()));
             }
         } catch (IOException e){
-            e.printStackTrace();
+            System.out.println("File mlayer-conf.ini not found!");
         }
     }
 
     @FXML
     void aboutMenuOnAction(ActionEvent event) {
-
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("About");
+        alert.setHeaderText(null);
+        alert.setContentText("Mlayer is a simple music player coded in JavaFX\n" +
+                "by Alek \"Tudny\" Tudruj - 2018");
+        alert.showAndWait();
     }
 
     @FXML
@@ -234,6 +253,11 @@ public class MainController {
     }
 
     @FXML
+    void loadDirectoryMenuOnAction(ActionEvent event){
+        loadNewSongsFromDirectory();
+    }
+
+    @FXML
     void muteButtonOnAction(ActionEvent event) {
         if(player.isMute()){
             player.setMute(false);
@@ -245,8 +269,13 @@ public class MainController {
     }
 
     @FXML
+    void clearListMenuOnAction(ActionEvent event){
+        clearList();
+    }
+
+    @FXML
     void nextButtonOnAction(ActionEvent event) {
-        songsList.getSelectionModel().selectNext();
+        playNextSong();
     }
 
     @FXML
@@ -264,12 +293,13 @@ public class MainController {
 
     @FXML
     void prevButtonOnAction(ActionEvent event) {
-        songsList.getSelectionModel().selectPrevious();
+        playPrevSong();
     }
 
     private void loadNewSong(){
         FileChooser fileChooser = new FileChooser();
-        fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Audio Files", "*.wav", "*.mp3"));
+        fileChooser.getExtensionFilters().
+                addAll(new FileChooser.ExtensionFilter("Audio Files", "*.mp3"));
         File file = fileChooser.showOpenDialog(null);
         if(file == null) return;
 
@@ -277,13 +307,58 @@ public class MainController {
 
         songOList.add(addedSong);
         songsList.getItems().add(addedSong);
+
+        if(songOList.size() == 1){
+            songsList.getSelectionModel().select(songOList.get(0));
+        }
+    }
+
+    private void loadNewSongsFromDirectory(){
+        DirectoryChooser directoryChooser = new DirectoryChooser();
+        File folder = directoryChooser.showDialog(null);
+        if(folder == null) return;
+        boolean notChoosen = false;
+        if(songOList.size() == 0){
+            notChoosen = true;
+        }
+        notASongFile = 0;
+        addAllFromDir(folder);
+        System.out.println("Number of not-music-files: " + notASongFile);
+        if(notChoosen){
+            songsList.getSelectionModel().select(songOList.get(0));
+        }
+    }
+
+    private void addAllFromDir(File dir){
+        File[] listOfFiles = dir.listFiles();
+        if(listOfFiles == null) return;
+        for (File listOfFile : listOfFiles) {
+            if (listOfFile.isFile()) {
+                if (listOfFile.getName().toLowerCase().endsWith(".mp3")) {
+                    Song songToAdd = new Song(listOfFile);
+                    songOList.add(songToAdd);
+                    songsList.getItems().addAll(songToAdd);
+                } else {
+                    notASongFile++;
+                }
+            } else if (listOfFile.isDirectory()) {
+                addAllFromDir(listOfFile);
+            }
+        }
+    }
+
+    private void clearList(){
+        songsList.getItems().clear();
+        songOList.clear();
     }
 
     private void setNewSongToPlay(Song newSong){
         if(player != null) player.stop();
         player = new MediaPlayer(newSong.getMedia());
         player.currentTimeProperty().addListener(updateOfSongBar);
-        String title = newSong.getEstheticTitle();
+        player.setOnEndOfMedia(endRunnable);
+        String title = newSong.getEstheticTitle(1);
+        myStage.setTitle(newSong.getEstheticTitle(2));
         if(title.length() > MAX_TITLE_SIZE){
             title = title.substring(0, MAX_TITLE_SIZE) + "...";
         }
@@ -301,5 +376,25 @@ public class MainController {
 
     public void skipNextButtonOnAction(ActionEvent actionEvent) {
         player.seek(player.getCurrentTime().add(Duration.seconds(SKIP_VAL)));
+    }
+
+    private void playNextSong(){
+        if(songsList.getSelectionModel().getFocusedIndex() == songOList.size() - 1){
+            songsList.getSelectionModel().select(0);
+        }else{
+            songsList.getSelectionModel().selectNext();
+        }
+    }
+
+    private void playPrevSong(){
+        if(songsList.getSelectionModel().getFocusedIndex() == 0){
+            songsList.getSelectionModel().select(songOList.size() - 1);
+        }else{
+            songsList.getSelectionModel().selectPrevious();
+        }
+    }
+
+    private void playTheSameSong(){
+        songsList.getSelectionModel().select(songsList.getSelectionModel().getSelectedIndex());
     }
 }
