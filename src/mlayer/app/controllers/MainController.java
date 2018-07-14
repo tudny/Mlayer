@@ -38,6 +38,7 @@ public class MainController {
         }
     };
     private Integer MAX_TITLE_SIZE = 35;
+    private Double SKIP_VAL = 5.0;
 
     @FXML
     private MenuItem loadMenu;
@@ -93,6 +94,9 @@ public class MainController {
     @FXML
     private Button nextButton;
 
+    @FXML
+    private Slider volumeSlider;
+
     public MainController(){
         System.out.println("Controller created");
     }
@@ -121,6 +125,24 @@ public class MainController {
 
         songOList = FXCollections.observableArrayList();
 
+        songsList.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            if(newValue == null){
+                if(player != null){
+                    player.stop();
+                }
+                return;
+            }
+            setNewSongToPlay(newValue);
+        });
+
+        volumeSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
+            if(player != null){
+                player.setVolume(volumeSlider.getValue());
+            }
+        });
+
+        loadFilesFromIniFile();
+
         System.out.println("...setting done!");
     }
 
@@ -137,6 +159,7 @@ public class MainController {
         Optional<ButtonType> result = closingAlert.showAndWait();
 
         if(result.isPresent() && result.get().equals(ButtonType.OK)){
+            createIniFile();
             myStage.close();
             return true;
         } else {
@@ -144,23 +167,18 @@ public class MainController {
         }
     }
 
-    private void test(){
-        /*player = new MediaPlayer(songOList.get(0).getMedia());
-        player.currentTimeProperty().addListener(updateOfSongBar);
-        player.play();*/
-        //createIniFile();
-        //setNewSongToPlay(songOList.get(0));
-        loadFilesFromIniFile();
-    }
-
-    public void createIniFile(){
+    private void createIniFile(){
         try {
             PrintWriter writer = new PrintWriter("mlayer-conf.ini", "UTF-8");
-            writer.println("#Mlayer configuration file");
+            writer.println("#Mlayer config");
+            writer.println("#Songs");
             for (Song aSongOList : songOList) {
                 String path = aSongOList.getFile().getPath();
                 writer.println(path);
             }
+            writer.println("#end");
+            writer.println("#Selested");
+            writer.println(songsList.getSelectionModel().getSelectedIndex());
             writer.println("#end");
             writer.close();
         } catch (FileNotFoundException | UnsupportedEncodingException e) {
@@ -173,11 +191,19 @@ public class MainController {
             BufferedReader br = new BufferedReader(new FileReader("mlayer-conf.ini"));
             String read;
             while((read = br.readLine()) != null){
-                if(read.charAt(0) == '#') continue;
+                if(read.startsWith("#Mlayer config")) continue;
+                if(read.startsWith("#Songs")) continue;
+                if(read.startsWith("#end")) break;
                 File file = new File(read);
                 Song addedSong = new Song(file);
                 songOList.add(addedSong);
                 songsList.getItems().add(addedSong);
+            }
+            while((read = br.readLine()) != null){
+                if(read.startsWith("#Mlayer config")) continue;
+                if(read.startsWith("#Selected")) continue;
+                if(read.startsWith("#end")) continue;
+                songsList.getSelectionModel().select(Integer.parseInt(br.readLine()));
             }
         } catch (IOException e){
             e.printStackTrace();
@@ -186,7 +212,7 @@ public class MainController {
 
     @FXML
     void aboutMenuOnAction(ActionEvent event) {
-        test();
+
     }
 
     @FXML
@@ -196,7 +222,10 @@ public class MainController {
 
     @FXML
     void deleteMenuAction(ActionEvent event) {
-
+        if(songsList.getItems().size() < 1) return;
+        Song songToDelete = songsList.getSelectionModel().getSelectedItem();
+        songOList.removeAll(songToDelete);
+        songsList.getItems().removeAll(songToDelete);
     }
 
     @FXML
@@ -206,28 +235,43 @@ public class MainController {
 
     @FXML
     void muteButtonOnAction(ActionEvent event) {
-
+        if(player.isMute()){
+            player.setMute(false);
+            muteButton.setText("M");
+        }else{
+            player.setMute(true);
+            muteButton.setText("m");
+        }
     }
 
     @FXML
     void nextButtonOnAction(ActionEvent event) {
-
+        songsList.getSelectionModel().selectNext();
     }
 
     @FXML
     void playButtonOnAction(ActionEvent event) {
+        if(player == null){
+            return;
+        }
 
+        if(player.getStatus().equals(MediaPlayer.Status.PLAYING)){
+            player.pause();
+        }else if(player.getStatus().equals(MediaPlayer.Status.PAUSED)){
+            player.play();
+        }
     }
 
     @FXML
     void prevButtonOnAction(ActionEvent event) {
-
+        songsList.getSelectionModel().selectPrevious();
     }
 
     private void loadNewSong(){
         FileChooser fileChooser = new FileChooser();
         fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Audio Files", "*.wav", "*.mp3"));
         File file = fileChooser.showOpenDialog(null);
+        if(file == null) return;
 
         Song addedSong = new Song(file);
 
@@ -236,6 +280,7 @@ public class MainController {
     }
 
     private void setNewSongToPlay(Song newSong){
+        if(player != null) player.stop();
         player = new MediaPlayer(newSong.getMedia());
         player.currentTimeProperty().addListener(updateOfSongBar);
         String title = newSong.getEstheticTitle();
@@ -251,10 +296,10 @@ public class MainController {
     }
 
     public void skipPrevButtonOnAction(ActionEvent actionEvent) {
-        
+        player.seek(player.getCurrentTime().subtract(Duration.seconds(SKIP_VAL)));
     }
 
     public void skipNextButtonOnAction(ActionEvent actionEvent) {
-
+        player.seek(player.getCurrentTime().add(Duration.seconds(SKIP_VAL)));
     }
 }

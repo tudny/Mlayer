@@ -8,6 +8,7 @@ import javafx.beans.property.StringProperty;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.image.Image;
 import javafx.scene.media.Media;
+import mlayer.app.Main;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -49,10 +50,12 @@ public class Song{
 
     public Image getCoverArt(){
         try {
-            if (id3v2 != null) {
+            if (id3v2 != null && id3v2.getAlbumImage() != null) {
                 byte[] coverArtData = id3v2.getAlbumImage();
                 BufferedImage img = ImageIO.read(new ByteArrayInputStream(coverArtData));
                 return SwingFXUtils.toFXImage(img, null);
+            }else {
+                return new Image(String.valueOf(Main.class.getResource("img/unknown-CoverArt.png")));
             }
         } catch (IOException e){
             e.printStackTrace();

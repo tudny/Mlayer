@@ -61,9 +61,14 @@
                         <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                      </padding>
                      <HBox.margin>
-                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                        <Insets bottom="5.0" left="5.0" top="5.0" />
                      </HBox.margin>
                   </Button>
+                  <Slider fx:id="volumeSlider" max="1.0" value="1.0">
+                     <HBox.margin>
+                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                     </HBox.margin>
+                  </Slider>
                   <Separator orientation="VERTICAL" prefHeight="200.0" />
                   <Button fx:id="prevButton" alignment="CENTER" mnemonicParsing="false" onAction="#prevButtonOnAction" prefHeight="35.0" prefWidth="35.0" text="Prev" textAlignment="CENTER">
                      <padding>
