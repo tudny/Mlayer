@@ -314,6 +314,9 @@ public class MainController {
 
     @FXML
     void nextButtonOnAction(ActionEvent event) {
+        if(songOList.size() < 2){
+            setNewSongToPlay(songsList.getSelectionModel().getSelectedItem());
+        }
         playNextSong();
     }
 
@@ -334,6 +337,9 @@ public class MainController {
 
     @FXML
     void prevButtonOnAction(ActionEvent event) {
+        if(songOList.size() < 2){
+            setNewSongToPlay(songsList.getSelectionModel().getSelectedItem());
+        }
         playPrevSong();
     }
 
