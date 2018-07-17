@@ -5,7 +5,7 @@ Simple music player in JavaFX
 
 ### #1
 
-All these files are Intellij project files (w/o out folder). Import them to IDE are compile.
+All these files are Intellij project files. Import them to IDE are compile.
 
 
 ### #2
