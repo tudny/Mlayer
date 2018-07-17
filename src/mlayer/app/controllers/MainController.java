@@ -267,7 +267,7 @@ public class MainController {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("About");
         alert.setHeaderText(null);
-        alert.setContentText("Mlayer is a simple music player coded in JavaFX\n" +
+        alert.setContentText("Mlayer is a simple music player made in JavaFX\n" +
                 "by Alek \"Tudny\" Tudruj - 2018");
         alert.showAndWait();
     }
