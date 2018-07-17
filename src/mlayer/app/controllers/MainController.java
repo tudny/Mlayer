@@ -283,6 +283,9 @@ public class MainController {
         Song songToDelete = songsList.getSelectionModel().getSelectedItem();
         songOList.removeAll(songToDelete);
         songsList.getItems().removeAll(songToDelete);
+        if(songOList.size() == 0){
+            clearList();
+        }
     }
 
     @FXML
@@ -314,6 +317,7 @@ public class MainController {
 
     @FXML
     void nextButtonOnAction(ActionEvent event) {
+        if(player == null) return;
         if(songOList.size() < 2){
             setNewSongToPlay(songsList.getSelectionModel().getSelectedItem());
         }
@@ -337,6 +341,7 @@ public class MainController {
 
     @FXML
     void prevButtonOnAction(ActionEvent event) {
+        if(player == null) return;
         if(songOList.size() < 2){
             setNewSongToPlay(songsList.getSelectionModel().getSelectedItem());
         }
@@ -397,6 +402,9 @@ public class MainController {
     private void clearList(){
         songsList.getItems().clear();
         songOList.clear();
+        coverArtImageView.setImage(null);
+        myStage.setTitle("Mlayer");
+        titleText.setText("Title");
     }
 
     private void setNewSongToPlay(Song newSong){
