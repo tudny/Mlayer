@@ -32,10 +32,10 @@ public class MainController {
     private ChangeListener<Duration> updateOfSongBar = new ChangeListener<Duration>() {
         @Override
         public void changed(ObservableValue<? extends Duration> observable, Duration oldValue, Duration newValue) {
-            if(player == null) return;
+            if(player == null || isSliderUsed) return;
             double current = player.getCurrentTime().toSeconds();
             double fullTime = player.getMedia().getDuration().toSeconds();
-            timeBar.setProgress(current / fullTime);
+            timeBar.setValue(current / fullTime);
         }
     };
     private Runnable endRunnable = this::endOfSong;
@@ -44,6 +44,7 @@ public class MainController {
     private Integer notASongFile = 0;
     private Image muteImg, unmuteImg, pauseImg, playImg, nextImg, prevImg, skipForwImg, skipBackImg, loopImg, loopWImg, loopNImg;
     private Integer loopStatus = 1; // 1 -> [1, N] with loop   2 -> [1, N]   3 -> [i, i]
+    private Boolean isSliderUsed = false;
 
     @FXML
     private MenuItem loadMenu;
@@ -70,7 +71,7 @@ public class MainController {
     private ImageView coverArtImageView;
 
     @FXML
-    private ProgressBar timeBar;
+    private Slider timeBar;
 
     @FXML
     private TableView<Song> songsList;
@@ -178,6 +179,12 @@ public class MainController {
             if(player != null){
                 player.setVolume(volumeSlider.getValue());
             }
+        });
+
+        timeBar.valueProperty().addListener((observable, oldValue, newValue) -> {
+            if(player == null) return;
+            if(isSliderUsed)
+                player.seek(Duration.seconds(player.getMedia().getDuration().toSeconds() * newValue.doubleValue()));
         });
 
         loadFilesFromIniFile();
@@ -484,5 +491,15 @@ public class MainController {
             loopStatus = 3;
             loopButton.setGraphic(new ImageView(loopNImg));
         }
+    }
+
+    @FXML
+    private void sliderIsBeingUsed(){
+        isSliderUsed = true;
+    }
+
+    @FXML
+    private void sliderIsNotBeingUsed(){
+        isSliderUsed = false;
     }
 }

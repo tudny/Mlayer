@@ -33,14 +33,11 @@
             <Separator prefWidth="200.0" />
             <ImageView fx:id="coverArtImageView" fitHeight="250.0" fitWidth="250.0" pickOnBounds="true" preserveRatio="true" />
             <Separator prefWidth="200.0" />
-            <ProgressBar fx:id="timeBar" prefHeight="18.0" prefWidth="250.0" progress="0.0">
+            <Slider fx:id="timeBar" max="1.0" onMouseEntered="#sliderIsBeingUsed" onMouseExited="#sliderIsNotBeingUsed">
                <VBox.margin>
-                  <Insets />
-               </VBox.margin>
-               <padding>
                   <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-               </padding>
-            </ProgressBar>
+               </VBox.margin>
+            </Slider>
             <Separator prefWidth="250.0" />
          </VBox>
       </center>
