@@ -16,7 +16,7 @@ public class Main extends Application {
         loader.setLocation(getClass().getResource("fxml/MainWindow.fxml"));
         AnchorPane root = loader.load();
 
-        primaryStage.setTitle("Hello World");
+        primaryStage.setTitle("Mlayer");
         primaryStage.setScene(new Scene(root));
         primaryStage.setResizable(false);
         primaryStage.sizeToScene();

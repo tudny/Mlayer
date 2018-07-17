@@ -38,11 +38,12 @@ public class MainController {
             timeBar.setProgress(current / fullTime);
         }
     };
-    private Runnable endRunnable = this::playNextSong;
+    private Runnable endRunnable = this::endOfSong;
     private Integer MAX_TITLE_SIZE = 35;
     private Double SKIP_VAL = 5.0;
     private Integer notASongFile = 0;
-    private Image muteImg, unmuteImg, pauseImg, playImg, nextImg, prevImg, skipForwImg, skipBackImg;
+    private Image muteImg, unmuteImg, pauseImg, playImg, nextImg, prevImg, skipForwImg, skipBackImg, loopImg, loopWImg, loopNImg;
+    private Integer loopStatus = 1; // 1 -> [1, N] with loop   2 -> [1, N]   3 -> [i, i]
 
     @FXML
     private MenuItem loadMenu;
@@ -110,6 +111,9 @@ public class MainController {
     @FXML
     private Slider volumeSlider;
 
+    @FXML
+    private Button loopButton;
+
     public MainController(){
         System.out.println("Controller created");
     }
@@ -139,6 +143,9 @@ public class MainController {
         unmuteImg = loadNewPngImageFromImgFolder("unmute");
         skipForwImg = loadNewPngImageFromImgFolder("skipForw");
         skipBackImg = loadNewPngImageFromImgFolder("skipBack");
+        loopImg = loadNewPngImageFromImgFolder("loop");
+        loopWImg = loadNewPngImageFromImgFolder("loopW");
+        loopNImg = loadNewPngImageFromImgFolder("loopN");
 
         playButton.setText(null); playButton.setGraphic(new ImageView(playImg));
         nextButton.setGraphic(new ImageView(nextImg));
@@ -146,6 +153,8 @@ public class MainController {
         muteButton.setGraphic(new ImageView(unmuteImg));
         skipNextButton.setGraphic(new ImageView(skipForwImg));
         skipPrevButton.setGraphic(new ImageView(skipBackImg));
+
+        loopTo(loopStatus);
 
         myStage.setOnCloseRequest(event -> {
             if(!closeWindow()){
@@ -214,6 +223,9 @@ public class MainController {
             writer.println("#Selested");
             writer.println(songsList.getSelectionModel().getSelectedIndex());
             writer.println("#end");
+            writer.println("#Loop_Type");
+            writer.println(loopStatus);
+            writer.println("#end");
             writer.close();
         } catch (FileNotFoundException | UnsupportedEncodingException e) {
             e.printStackTrace();
@@ -238,6 +250,12 @@ public class MainController {
                 if(read.startsWith("#Selected")) continue;
                 if(read.startsWith("#end")) break;
                 songsList.getSelectionModel().select(Integer.parseInt(br.readLine()));
+            }
+            while((read = br.readLine()) != null){
+                if(read.startsWith("#Mlayer config")) continue;
+                if(read.startsWith("#Loop_Type")) continue;
+                if(read.startsWith("#end")) break;
+                loopTo(Integer.parseInt(read));
             }
         } catch (IOException e){
             System.out.println("File mlayer-conf.ini not found!");
@@ -307,10 +325,10 @@ public class MainController {
 
         if(player.getStatus().equals(MediaPlayer.Status.PLAYING)){
             player.pause();
-            playButton.setGraphic(new ImageView(pauseImg));
+            playButton.setGraphic(new ImageView(playImg));
         }else if(player.getStatus().equals(MediaPlayer.Status.PAUSED)){
             player.play();
-            playButton.setGraphic(new ImageView(playImg));
+            playButton.setGraphic(new ImageView(pauseImg));
         }
     }
 
@@ -390,6 +408,7 @@ public class MainController {
         coverArtImageView.setImage(img);
         coverArtImageView.setFitHeight(250);
         coverArtImageView.setFitWidth(250);
+        playButton.setGraphic(new ImageView(pauseImg));
         player.play();
     }
 
@@ -401,6 +420,16 @@ public class MainController {
     public void skipNextButtonOnAction(ActionEvent actionEvent) {
         if(player == null) return;
         player.seek(player.getCurrentTime().add(Duration.seconds(SKIP_VAL)));
+    }
+
+    private void endOfSong(){
+        if(loopStatus == 1){
+            playNextSong();
+        }else if(loopStatus == 2){
+            songsList.getSelectionModel().selectNext();
+        }else if(loopStatus == 3){
+            playTheSameSong();
+        }
     }
 
     private void playNextSong(){
@@ -420,6 +449,26 @@ public class MainController {
     }
 
     private void playTheSameSong(){
-        songsList.getSelectionModel().select(songsList.getSelectionModel().getSelectedIndex());
+        setNewSongToPlay(songsList.getSelectionModel().getSelectedItem());
+    }
+
+    @FXML
+    private void loopButtonOnAction(ActionEvent event) {
+        loopStatus %= 3;
+        loopStatus++;
+        loopTo(loopStatus);
+    }
+
+    private void loopTo(Integer nr){
+        if(nr == 1){
+            loopStatus = 1;
+            loopButton.setGraphic(new ImageView(loopWImg));
+        }else if(nr == 2){
+            loopStatus = 2;
+            loopButton.setGraphic(new ImageView(loopImg));
+        }else if(nr == 3){
+            loopStatus = 3;
+            loopButton.setGraphic(new ImageView(loopNImg));
+        }
     }
 }
