@@ -187,6 +187,8 @@ public class MainController {
                 player.seek(Duration.seconds(player.getMedia().getDuration().toSeconds() * newValue.doubleValue()));
         });
 
+        myStage.getIcons().add(loadNewPngImageFromImgFolder("mainWindowIcon"));
+
         loadFilesFromIniFile();
 
         System.out.println("...setting done!");
