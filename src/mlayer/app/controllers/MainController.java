@@ -18,9 +18,11 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 import mlayer.app.Main;
 import mlayer.app.classes.ConfigurationFile;
+import mlayer.app.classes.RandomRange;
 import mlayer.app.classes.Song;
 
 import java.io.File;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -29,7 +31,7 @@ public class MainController {
 
     private AnchorPane rootPane;
     private Stage myStage;
-    private ObservableList<Song> songOList;
+    private ObservableList<Song> songOList, originalList;
     private MediaPlayer player;
     private ChangeListener<Duration> updateOfSongBar = new ChangeListener<Duration>() {
         @Override
@@ -44,10 +46,12 @@ public class MainController {
     private Integer MAX_TITLE_SIZE = 35;
     private Double SKIP_VAL = 5.0;
     private Integer notASongFile = 0;
-    private Image muteImg, unmuteImg, pauseImg, playImg, nextImg, prevImg, skipForwImg, skipBackImg, loopImg, loopWImg, loopNImg;
+    private Image muteImg, unmuteImg, pauseImg, playImg, nextImg, prevImg, skipForwImg, skipBackImg, loopImg, loopWImg, loopNImg, shuffleImg, unshuffleImg;
     private Integer loopStatus = 1; // 1 -> [1, N] with loop   2 -> [1, N]   3 -> [i, i]
     private Boolean isSliderUsed = false;
     private ConfigurationFile config;
+    private Boolean isShuffleOn = false;
+    private Integer lastSelected = -1;
 
     @FXML
     private MenuItem loadMenu;
@@ -118,6 +122,9 @@ public class MainController {
     @FXML
     private Button loopButton;
 
+    @FXML
+    private Button shuffleButton;
+
     public MainController(){
         System.out.println("Controller created");
     }
@@ -139,17 +146,19 @@ public class MainController {
         albumColumn.setCellValueFactory(cellData -> cellData.getValue().getAlbumProperty());
         durationColumn.setCellValueFactory(cellData -> cellData.getValue().getDurationProperty());
 
-        playImg = loadNewPngImageFromImgFolder("play");
-        pauseImg = loadNewPngImageFromImgFolder("pause");
-        nextImg = loadNewPngImageFromImgFolder("next");
-        prevImg = loadNewPngImageFromImgFolder("prev");
-        muteImg = loadNewPngImageFromImgFolder("mute");
-        unmuteImg = loadNewPngImageFromImgFolder("unmute");
-        skipForwImg = loadNewPngImageFromImgFolder("skipForw");
-        skipBackImg = loadNewPngImageFromImgFolder("skipBack");
-        loopImg = loadNewPngImageFromImgFolder("loop");
-        loopWImg = loadNewPngImageFromImgFolder("loopW");
-        loopNImg = loadNewPngImageFromImgFolder("loopN");
+        playImg      = loadNewPngImageFromImgFolder("play");
+        pauseImg     = loadNewPngImageFromImgFolder("pause");
+        nextImg      = loadNewPngImageFromImgFolder("next");
+        prevImg      = loadNewPngImageFromImgFolder("prev");
+        muteImg      = loadNewPngImageFromImgFolder("mute");
+        unmuteImg    = loadNewPngImageFromImgFolder("unmute");
+        skipForwImg  = loadNewPngImageFromImgFolder("skipForw");
+        skipBackImg  = loadNewPngImageFromImgFolder("skipBack");
+        loopImg      = loadNewPngImageFromImgFolder("loop");
+        loopWImg     = loadNewPngImageFromImgFolder("loopW");
+        loopNImg     = loadNewPngImageFromImgFolder("loopN");
+        shuffleImg   = loadNewPngImageFromImgFolder("shuffle");
+        unshuffleImg = loadNewPngImageFromImgFolder("unshuffle");
 
         playButton.setText(null); playButton.setGraphic(new ImageView(playImg));
         nextButton.setGraphic(new ImageView(nextImg));
@@ -157,6 +166,7 @@ public class MainController {
         muteButton.setGraphic(new ImageView(unmuteImg));
         skipNextButton.setGraphic(new ImageView(skipForwImg));
         skipPrevButton.setGraphic(new ImageView(skipBackImg));
+        shuffleButton.setGraphic(new ImageView(unshuffleImg));
 
         loopTo(loopStatus);
 
@@ -167,6 +177,7 @@ public class MainController {
         });
 
         songOList = FXCollections.observableArrayList();
+        originalList = FXCollections.observableArrayList();
 
         songsList.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if(newValue == null){
@@ -328,7 +339,8 @@ public class MainController {
 
     @FXML
     void loadMenuOnAction(ActionEvent event) {
-        loadNewSong();
+        //loadNewSong();
+        loadNewSongsFromDiagram();
     }
 
     @FXML
@@ -386,6 +398,9 @@ public class MainController {
         playPrevSong();
     }
 
+
+    @SuppressWarnings("unused")
+    /*this function was replaced with loadNewSongsFromDiagram() function which can load more than only one file*/
     private void loadNewSong(){
         try {
             FileChooser fileChooser = new FileChooser();
@@ -425,6 +440,8 @@ public class MainController {
 
     private void loadNewSongsFromDiagram(){
         FileChooser fileChooser = new FileChooser();
+        fileChooser.getExtensionFilters().
+                addAll(new FileChooser.ExtensionFilter("Audio Files", "*.mp3"));
         List<File> listOfFiles = fileChooser.showOpenMultipleDialog(null);
         if(listOfFiles == null) return;
         for(File file : listOfFiles){
@@ -567,5 +584,45 @@ public class MainController {
         config.setSongs(songOList);
         config.setLoopType(loopStatus);
         config.setSelectedSong(songsList.getSelectionModel().getSelectedIndex());
+    }
+
+    @FXML
+    public void shuffleButtonOnAction(ActionEvent event){
+        if(isShuffleOn){
+            unShuffleList();
+            shuffleButton.setGraphic(new ImageView(unshuffleImg));
+            isShuffleOn = false;
+        }else{
+            shuffleList();
+            shuffleButton.setGraphic(new ImageView(shuffleImg));
+            isShuffleOn = true;
+        }
+    }
+
+    private void shuffleList(){
+        lastSelected = songsList.getSelectionModel().getFocusedIndex();
+        originalList.clear();
+        originalList.addAll(songOList);
+        for(int i = 0; i < songOList.size(); i++){
+            RandomRange randomRange = new RandomRange();
+            Integer swapId = i;
+            try {
+                swapId = randomRange.nextInt(i, songOList.size() - 1);
+            } catch (Exception e){
+                System.out.println(e.getMessage());
+            }
+            Collections.swap(songOList, i, swapId);
+        }
+        songsList.getItems().clear();
+        songsList.getItems().addAll(songOList);
+        songsList.getSelectionModel().selectFirst();
+    }
+
+    private void unShuffleList(){
+        songsList.getItems().clear();
+        songsList.getItems().addAll(originalList);
+        songOList.clear();
+        songOList.addAll(originalList);
+        songsList.getSelectionModel().select(lastSelected);
     }
 }

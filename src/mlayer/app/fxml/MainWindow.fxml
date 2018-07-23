@@ -82,9 +82,10 @@
             <Separator orientation="VERTICAL" prefHeight="200.0" />
             <Button fx:id="loopButton" alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#loopButtonOnAction" prefHeight="35.0" prefWidth="35.0" textAlignment="CENTER">
                <HBox.margin>
-                  <Insets bottom="5.0" left="15.0" right="15.0" top="5.0" />
+                  <Insets bottom="5.0" left="15.0" right="10.0" top="5.0" />
                </HBox.margin>
             </Button>
+            <Button fx:id="shuffleButton" alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#shuffleButtonOnAction" prefHeight="35.0" prefWidth="35.0" textAlignment="CENTER" />
          </HBox>
       </bottom>
       <left>
