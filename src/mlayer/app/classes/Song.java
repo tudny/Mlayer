@@ -19,13 +19,13 @@ import java.io.IOException;
 public class Song{
 
     private static final String unknown = "Unknown";
-    private Mp3File mp3File = null;
+    private Mp3File mp3File;
     private ID3v1 id3v1 = null;
     private ID3v2 id3v2 = null;
-    private Media media = null;
-    private File file = null;
+    private Media media;
+    private File file;
 
-    public Song(File file){
+    public Song(File file) throws Exception{
         try{
             mp3File = new Mp3File(file.getPath());
             media = new Media(file.toURI().toASCIIString());
@@ -41,6 +41,7 @@ public class Song{
 
         } catch (Exception e){
             System.out.println(e.getMessage() + " " + e.getCause());
+            throw new Exception("File error!");
         }
     }
 
@@ -98,7 +99,7 @@ public class Song{
         return mp3File;
     }
 
-    public File getFile(){
+    File getFile(){
         return file;
     }
 

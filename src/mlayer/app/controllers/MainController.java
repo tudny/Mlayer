@@ -17,9 +17,10 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import mlayer.app.Main;
+import mlayer.app.classes.ConfigurationFile;
 import mlayer.app.classes.Song;
 
-import java.io.*;
+import java.io.File;
 import java.util.Optional;
 
 
@@ -45,6 +46,7 @@ public class MainController {
     private Image muteImg, unmuteImg, pauseImg, playImg, nextImg, prevImg, skipForwImg, skipBackImg, loopImg, loopWImg, loopNImg;
     private Integer loopStatus = 1; // 1 -> [1, N] with loop   2 -> [1, N]   3 -> [i, i]
     private Boolean isSliderUsed = false;
+    private ConfigurationFile config;
 
     @FXML
     private MenuItem loadMenu;
@@ -189,7 +191,22 @@ public class MainController {
 
         myStage.getIcons().add(loadNewPngImageFromImgFolder("mainWindowIcon"));
 
-        loadFilesFromIniFile();
+
+
+        config = new ConfigurationFile();
+
+        if(!config.load()){
+            config.generateNewIni();
+        }
+
+        songOList.addAll(config.getSongs());
+        songsList.getItems().addAll(config.getSongs());
+
+        songsList.getSelectionModel().select(config.getSelectedSong());
+
+        loopTo(config.getLoopType());
+
+
 
         System.out.println("...setting done!");
     }
@@ -211,7 +228,8 @@ public class MainController {
         Optional<ButtonType> result = closingAlert.showAndWait();
 
         if(result.isPresent() && result.get().equals(ButtonType.OK)){
-            createIniFile();
+            updateConfig();
+            config.generateIniFile();
             myStage.close();
             return true;
         } else {
@@ -219,9 +237,9 @@ public class MainController {
         }
     }
 
-    private void createIniFile(){
+    /*private void createIniFile(){
         try {
-            PrintWriter writer = new PrintWriter("mlayer-conf.ini", "UTF-8");
+            PrintWriter writer = new PrintWriter("mlayer-config.mconf", "UTF-8");
             writer.println("#Mlayer config");
             writer.println("#Songs");
             for (Song aSongOList : songOList) {
@@ -239,37 +257,47 @@ public class MainController {
         } catch (FileNotFoundException | UnsupportedEncodingException e) {
             e.printStackTrace();
         }
-    }
+    }*/
 
-    private void loadFilesFromIniFile(){
+    /*private void loadFilesFromIniFile() throws Exception{
+        BufferedReader br = new BufferedReader(new FileReader("mlayer-config.mconf"));
+        String read;
+        Integer failed = 0;
         try {
-            BufferedReader br = new BufferedReader(new FileReader("mlayer-conf.ini"));
-            String read;
-            while((read = br.readLine()) != null){
-                if(read.startsWith("#Mlayer config")) continue;
-                if(read.startsWith("#Songs")) continue;
-                if(read.startsWith("#end")) break;
+            while ((read = br.readLine()) != null) {
+                if (read.startsWith("#Mlayer config")) continue;
+                if (read.startsWith("#Songs")) continue;
+                if (read.startsWith("#end")) break;
                 File file = new File(read);
                 Song addedSong = new Song(file);
                 songOList.add(addedSong);
                 songsList.getItems().add(addedSong);
             }
-            while((read = br.readLine()) != null){
-                if(read.startsWith("#Mlayer config")) continue;
-                if(read.startsWith("#Selected")) continue;
-                if(read.startsWith("#end")) break;
-                songsList.getSelectionModel().select(Integer.parseInt(br.readLine()));
+        } catch (Exception e) {
+            failed++;
+            System.out.println(e.getMessage());
+        }
+        try {
+            while ((read = br.readLine()) != null) {
+                if (read.startsWith("#Mlayer config")) continue;
+                if (read.startsWith("#Selected")) continue;
+                if (read.startsWith("#end")) break;
+                songsList.getSelectionModel().select(Integer.parseInt(br.readLine()) - failed);
             }
-            while((read = br.readLine()) != null){
-                if(read.startsWith("#Mlayer config")) continue;
-                if(read.startsWith("#Loop_Type")) continue;
-                if(read.startsWith("#end")) break;
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+        try {
+            while ((read = br.readLine()) != null) {
+                if (read.startsWith("#Mlayer config")) continue;
+                if (read.startsWith("#Loop_Type")) continue;
+                if (read.startsWith("#end")) break;
                 loopTo(Integer.parseInt(read));
             }
-        } catch (IOException e){
-            System.out.println("File mlayer-conf.ini not found!");
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
         }
-    }
+    }*/
 
     @FXML
     void aboutMenuOnAction(ActionEvent event) {
@@ -358,19 +386,23 @@ public class MainController {
     }
 
     private void loadNewSong(){
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.getExtensionFilters().
-                addAll(new FileChooser.ExtensionFilter("Audio Files", "*.mp3"));
-        File file = fileChooser.showOpenDialog(null);
-        if(file == null) return;
+        try {
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.getExtensionFilters().
+                    addAll(new FileChooser.ExtensionFilter("Audio Files", "*.mp3"));
+            File file = fileChooser.showOpenDialog(null);
+            if (file == null) return;
 
-        Song addedSong = new Song(file);
+            Song addedSong = new Song(file);
 
-        songOList.add(addedSong);
-        songsList.getItems().add(addedSong);
+            songOList.add(addedSong);
+            songsList.getItems().add(addedSong);
 
-        if(songOList.size() == 1){
-            songsList.getSelectionModel().select(songOList.get(0));
+            if (songOList.size() == 1) {
+                songsList.getSelectionModel().select(songOList.get(0));
+            }
+        } catch (Exception e){
+            System.out.println(e.getMessage());
         }
     }
 
@@ -396,7 +428,12 @@ public class MainController {
         for (File listOfFile : listOfFiles) {
             if (listOfFile.isFile()) {
                 if (listOfFile.getName().toLowerCase().endsWith(".mp3")) {
-                    Song songToAdd = new Song(listOfFile);
+                    Song songToAdd = null;
+                    try {
+                        songToAdd = new Song(listOfFile);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                     songOList.add(songToAdd);
                     songsList.getItems().addAll(songToAdd);
                 } else {
@@ -503,5 +540,11 @@ public class MainController {
     @FXML
     private void sliderIsNotBeingUsed(){
         isSliderUsed = false;
+    }
+
+    private void updateConfig(){
+        config.setSongs(songOList);
+        config.setLoopType(loopStatus);
+        config.setSelectedSong(songsList.getSelectionModel().getSelectedIndex());
     }
 }
