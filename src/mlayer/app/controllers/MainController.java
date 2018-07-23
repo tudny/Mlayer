@@ -21,6 +21,7 @@ import mlayer.app.classes.ConfigurationFile;
 import mlayer.app.classes.Song;
 
 import java.io.File;
+import java.util.List;
 import java.util.Optional;
 
 
@@ -419,6 +420,26 @@ public class MainController {
         System.out.println("Number of not-music-files: " + notASongFile);
         if(notChoosen){
             songsList.getSelectionModel().select(songOList.get(0));
+        }
+    }
+
+    private void loadNewSongsFromDiagram(){
+        FileChooser fileChooser = new FileChooser();
+        List<File> listOfFiles = fileChooser.showOpenMultipleDialog(null);
+        if(listOfFiles == null) return;
+        for(File file : listOfFiles){
+            if(file.isFile()){
+                if(file.getName().toLowerCase().endsWith(".mp3")){
+                    Song songToAdd;
+                    try{
+                        songToAdd = new Song(file);
+                        songOList.add(songToAdd);
+                        songsList.getItems().addAll(songToAdd);
+                    } catch (Exception e){
+                        System.out.println(e.getMessage());
+                    }
+                }
+            }
         }
     }
 
