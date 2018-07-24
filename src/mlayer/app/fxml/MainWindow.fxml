@@ -89,7 +89,7 @@
          </HBox>
       </bottom>
       <left>
-         <TableView fx:id="songsList" prefHeight="313.0" prefWidth="575.0" BorderPane.alignment="CENTER">
+         <TableView fx:id="songsList" onDragDropped="#listDragDropped" onDragExited="#listDragExited" onDragOver="#listDragOver" prefHeight="313.0" prefWidth="575.0" BorderPane.alignment="CENTER">
             <columns>
                <TableColumn fx:id="nrColumn" prefWidth="45.0" text="#" />
                <TableColumn fx:id="nameColumn" prefWidth="164.0" text="Name" />

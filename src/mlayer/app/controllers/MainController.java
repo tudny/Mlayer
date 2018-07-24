@@ -9,6 +9,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.DragEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.text.Text;
@@ -18,6 +19,7 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 import mlayer.app.Main;
 import mlayer.app.classes.ConfigurationFile;
+import mlayer.app.classes.DragAndDrop;
 import mlayer.app.classes.RandomRange;
 import mlayer.app.classes.Song;
 
@@ -436,6 +438,7 @@ public class MainController {
         if(notChoosen){
             songsList.getSelectionModel().select(songOList.get(0));
         }
+        songsList.setStyle(null);
     }
 
     private void loadNewSongsFromDiagram(){
@@ -625,4 +628,29 @@ public class MainController {
         songOList.addAll(originalList);
         songsList.getSelectionModel().select(lastSelected);
     }
+
+    @FXML
+    private void listDragDropped(DragEvent event){
+        List<File> listOfFiles = DragAndDrop.mouseDragDropped(event, songsList);
+        for(File file : listOfFiles){
+            try {
+                if(file.getName().toLowerCase().endsWith(".mp3")) {
+                    Song song = new Song(file);
+                    songOList.add(song);
+                    songsList.getItems().add(song);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public void listDragExited(DragEvent event) {
+        DragAndDrop.mouseDragExited(event, songsList);
+    }
+
+    public void listDragOver(DragEvent event) {
+        DragAndDrop.mouseDragOver(event, songsList);
+    }
+
 }
