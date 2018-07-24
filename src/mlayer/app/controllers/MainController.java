@@ -643,6 +643,9 @@ public class MainController {
                 e.printStackTrace();
             }
         }
+        if(songsList.getSelectionModel().getFocusedIndex() == -1){
+            songsList.getSelectionModel().selectFirst();
+        }
     }
 
     public void listDragExited(DragEvent event) {
