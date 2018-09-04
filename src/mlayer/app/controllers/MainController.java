@@ -251,67 +251,9 @@ public class MainController {
         }
     }
 
-    /*private void createIniFile(){
-        try {
-            PrintWriter writer = new PrintWriter("mlayer-config.mconf", "UTF-8");
-            writer.println("#Mlayer config");
-            writer.println("#Songs");
-            for (Song aSongOList : songOList) {
-                String path = aSongOList.getFile().getPath();
-                writer.println(path);
-            }
-            writer.println("#end");
-            writer.println("#Selested");
-            writer.println(songsList.getSelectionModel().getSelectedIndex());
-            writer.println("#end");
-            writer.println("#Loop_Type");
-            writer.println(loopStatus);
-            writer.println("#end");
-            writer.close();
-        } catch (FileNotFoundException | UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
-    }*/
-
-    /*private void loadFilesFromIniFile() throws Exception{
-        BufferedReader br = new BufferedReader(new FileReader("mlayer-config.mconf"));
-        String read;
-        Integer failed = 0;
-        try {
-            while ((read = br.readLine()) != null) {
-                if (read.startsWith("#Mlayer config")) continue;
-                if (read.startsWith("#Songs")) continue;
-                if (read.startsWith("#end")) break;
-                File file = new File(read);
-                Song addedSong = new Song(file);
-                songOList.add(addedSong);
-                songsList.getItems().add(addedSong);
-            }
-        } catch (Exception e) {
-            failed++;
-            System.out.println(e.getMessage());
-        }
-        try {
-            while ((read = br.readLine()) != null) {
-                if (read.startsWith("#Mlayer config")) continue;
-                if (read.startsWith("#Selected")) continue;
-                if (read.startsWith("#end")) break;
-                songsList.getSelectionModel().select(Integer.parseInt(br.readLine()) - failed);
-            }
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-        }
-        try {
-            while ((read = br.readLine()) != null) {
-                if (read.startsWith("#Mlayer config")) continue;
-                if (read.startsWith("#Loop_Type")) continue;
-                if (read.startsWith("#end")) break;
-                loopTo(Integer.parseInt(read));
-            }
-        } catch (IOException e) {
-            System.out.println(e.getMessage());
-        }
-    }*/
+    /*
+    * All configuration file functions were moved to another class file
+    * */
 
     @FXML
     void aboutMenuOnAction(ActionEvent event) {

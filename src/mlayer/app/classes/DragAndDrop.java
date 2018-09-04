@@ -25,7 +25,7 @@ public class DragAndDrop {
 
     public static void mouseDragOver(DragEvent event, TableView<Song> tableView) {
         Dragboard dragboard = event.getDragboard();
-        Integer mp3FileCount = 0;
+        int mp3FileCount = 0;
 
         for(File file : dragboard.getFiles()){
             if(file.isFile() && file.getName().toLowerCase().endsWith(".mp3")){
